@@ -3,8 +3,9 @@ import { CssBaseline, Paper } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 
-import AppBar from '../components/AppBar/AppBar';
-import Drawer from '../components/Drawer/Drawer';
+import { AppBar } from '../components/AppBar';
+import { Drawer } from '../components/Drawer';
+import { ProgramsTable } from '../components/ProgramsTable';
 import { drawerWidth } from '../data/drawer';
 
 const useStyles = makeStyles(theme => ({
@@ -73,7 +74,9 @@ const AdminPage = () => {
                 })}
             >
                 <div className={classes.drawerHeader}></div>
-                <Paper className={classes.paper}></Paper>
+                <Paper className={classes.paper}>
+                    <ProgramsTable />
+                </Paper>
             </main>
         </div>
     );
