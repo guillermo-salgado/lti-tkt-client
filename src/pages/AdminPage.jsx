@@ -7,6 +7,7 @@ import { AppBar } from '../components/AppBar';
 import { Drawer } from '../components/Drawer';
 import { ProgramsTable } from '../components/ProgramsTable';
 import { drawerWidth } from '../data/drawer';
+import { RulesTable } from '../components/RulesTable';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -75,7 +76,8 @@ const AdminPage = () => {
             >
                 <div className={classes.drawerHeader}></div>
                 <Paper className={classes.paper}>
-                    <ProgramsTable />
+                    {drawerSelected === 'Programs' && <ProgramsTable />}
+                    {drawerSelected === 'Rules' && <RulesTable />}
                 </Paper>
             </main>
         </div>

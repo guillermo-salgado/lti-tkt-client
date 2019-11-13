@@ -47,7 +47,7 @@ const Transition = React.forwardRef((props, ref) => (
     <Slide direction='up' ref={ref} {...props} />
 ));
 
-const ProgramsTable = () => {
+const RulesTable = () => {
     const classes = useStyles();
     const tableRef = React.createRef();
     const [data, setData] = React.useState([]);
@@ -56,6 +56,9 @@ const ProgramsTable = () => {
     const [errorMessage, setErrorMessage] = React.useState('');
     const [name, setName] = React.useState('');
     const [description, setDescription] = React.useState('');
+    const [type, setType] = React.useState('');
+    const [language, setLanguage] = React.useState('');
+    const [template, setTemplate] = React.useState('');
 
     const handleClose = () => {
         setOpen(false);
@@ -72,21 +75,30 @@ const ProgramsTable = () => {
     };
 
     const handleTextFieldChange = e => {
-        const {
-            target: { name, value }
-        } = e;
+        const { target: { name, value } } = e;
+
         if (name === 'name') {
             setName(value);
-        } else {
+        } else if (name === 'description') {
             setDescription(value);
+        } else if (name === 'type') {
+            setType(value);
+        } else if (name === 'template') {
+            setTemplate(value);
+        } else if (name === 'language') {
+            setLanguage(value);
         }
     };
 
-    const handleDialogSubmit = (name, description) => {
-        const createData = async (name, description) => {
+    const handleDialogSubmit = (
+        name, description, type, template, language
+    ) => {
+        const createData = async (
+            name, description, type, template, language
+        ) => {
             const result = await axios.post(
-                'http://localhost:3001/api/programs',
-                { name, description }
+                'http://localhost:3001/api/rules',
+                { name, description, type, template, language }
             );
             if (result.status >= 200 && result.status < 300) {
                 const newData = data.concat(result.data);
@@ -97,40 +109,12 @@ const ProgramsTable = () => {
                 setErrorMessage(JSON.stringify(result.data));
             }
         };
-        createData(name, description);
+        createData(name, description, type, template, language);
     };
-
-    const handleDeleteRows = (rows) => {
-        const deleteData = async (programId) => {
-            const result = await axios.delete(
-                `http://localhost:3001/api/programs/${programId}`);
-
-            if (result.status >= 200 && result.status < 300) {
-                console.log(`Data deleted successfully: ${programId}`);
-            } else {
-                console.log(`Error deleting program: ${programId}`);
-            }
-        };
-
-        console.log(rows);
-
-        const deletedIds = rows.map(element => {
-            const programId = element.id;
-            deleteData(programId);
-            return programId;
-        });
-
-        console.log(deletedIds);
-
-        const newData = data.filter(element => {
-            return deletedIds.indexOf(element.id) === -1;
-        });
-        setData(newData);
-    }
 
     React.useEffect(() => {
         const fetchData = async () => {
-            const result = await axios('http://localhost:3001/api/programs');
+            const result = await axios('http://localhost:3001/api/rules');
             setData(result.data);
         };
         fetchData();
@@ -140,29 +124,33 @@ const ProgramsTable = () => {
         <div>
             <MaterialTable
                 tableRef={tableRef}
-                title='Programs Administration'
+                title='Rules Administration'
                 columns={[
                     { title: 'Name', field: 'name', type: 'string' },
-                    { title: 'Description', field: 'description', type: 'string' }
+                    { title: 'Description', field: 'description', type: 'string' },
+                    { title: 'Type', field: 'type', type: 'string' },
+                    { title: 'Template', field: 'template', type: 'string' },
+                    { title: 'Language', field: 'language', type: 'string' },
+                    { title: 'Program Id', field: 'programId', type: 'numeric' },
+                    { title: 'Dynamic Date?', field: 'includeDynamicDate', type: 'boolean' }
                 ]}
                 data={data}
                 actions={[
                     {
                         icon: addIcon,
-                        tooltip: 'Add Program',
+                        tooltip: 'Add Rule',
                         isFreeAction: true,
                         onClick: (event, rows) => {
-                            console.log('Add program button clicked.');
+                            console.log('Add rule button clicked.');
                             handleOpen();
                         }
                     },
                     {
                         icon: deleteIcon,
-                        tooltip: 'Delete Selected Programs',
-                        // isFreeAction: true,
+                        tooltip: 'Delete Selected Rules',
+                        isFreeAction: true,
                         onClick: (event, rows) => {
-                            console.log('Delete programs button clicked.');
-                            handleDeleteRows(rows);
+                            console.log('Delete rules button clicked.');
                         }
                     }
                 ]}
@@ -176,17 +164,17 @@ const ProgramsTable = () => {
             />
             <Dialog
                 onClose={handleClose}
-                aria-labelledby='program-dialog-title'
+                aria-labelledby='rule-dialog-title'
                 open={open}
                 TransitionComponent={Transition}
             >
-                <DialogTitle id='program-dialog-title'>
-                    Create Program
+                <DialogTitle id='rule-dialog-title'>
+                    Create Rule
                 </DialogTitle>
                 <DialogContent>
                     {showErrorMessage && (
                         <DialogContentText
-                            key='program-dialog-content-text'
+                            key='rule-dialog-content-text'
                             className={classes.errorMessage}
                         >
                             An error occurred while attempting to create
@@ -219,6 +207,36 @@ const ProgramsTable = () => {
                                     onChange={handleTextFieldChange}
                                 />
                             </ListItem>
+                            <ListItem key='type-list-item'>
+                                <TextField
+                                    id='type'
+                                    name='type'
+                                    label='Type'
+                                    className={classes.textField}
+                                    margin='normal'
+                                    onChange={handleTextFieldChange}
+                                />
+                            </ListItem>
+                            <ListItem key='template-list-item'>
+                                <TextField
+                                    id='template'
+                                    name='template'
+                                    label='Template'
+                                    className={classes.textField}
+                                    margin='normal'
+                                    onChange={handleTextFieldChange}
+                                />
+                            </ListItem>
+                            <ListItem key='language-list-item'>
+                                <TextField
+                                    id='language'
+                                    name='language'
+                                    label='Language'
+                                    className={classes.textField}
+                                    margin='normal'
+                                    onChange={handleTextFieldChange}
+                                />
+                            </ListItem>
                         </List>
                     </form>
                 </DialogContent>
@@ -230,7 +248,9 @@ const ProgramsTable = () => {
                         color='primary'
                         onClick={e => {
                             e.preventDefault();
-                            handleDialogSubmit(name, description);
+                            handleDialogSubmit(
+                                name, description, type, template, language
+                            );
                         }}
                     >
                         Submit
@@ -241,4 +261,4 @@ const ProgramsTable = () => {
     );
 };
 
-export default ProgramsTable;
+export default RulesTable;
